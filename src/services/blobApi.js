@@ -41,19 +41,10 @@ export async function uploadPdf(file, onProgress) {
 
   await uploadWithProgress(tokenResult.presignedUrl, file, onProgress);
 
-  const infoResponse = await fetch(
-    `/api/upload?pathname=${encodeURIComponent(pathname)}`,
-  );
-
-  const info = await infoResponse.json();
-
-  if (!infoResponse.ok) {
-    throw new Error(info.error || "Não foi possível localizar o PDF enviado.");
-  }
-
   return {
-    url: info.url,
-    pathname: info.pathname,
+    url: `/api/pdf?pathname=${encodeURIComponent(pathname)}`,
+
+    pathname,
   };
 }
 
@@ -78,7 +69,6 @@ function uploadWithProgress(url, file, onProgress) {
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
         resolve();
-
         return;
       }
 
