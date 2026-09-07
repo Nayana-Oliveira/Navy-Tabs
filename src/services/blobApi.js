@@ -39,23 +39,21 @@ export async function uploadPdf(file, onProgress) {
     throw new Error(tokenResult.error || "Não foi possível preparar o upload.");
   }
 
-  const blobResponse = await uploadWithProgress(
-    tokenResult.presignedUrl,
-    file,
-    onProgress,
+  await uploadWithProgress(tokenResult.presignedUrl, file, onProgress);
+
+  const infoResponse = await fetch(
+    `/api/upload?pathname=${encodeURIComponent(pathname)}`,
   );
 
-  if (!blobResponse.ok) {
-    const message = await blobResponse.text();
+  const info = await infoResponse.json();
 
-    throw new Error(message || "Não foi possível enviar o PDF.");
+  if (!infoResponse.ok) {
+    throw new Error(info.error || "Não foi possível localizar o PDF enviado.");
   }
 
-  const url = tokenResult.presignedUrl.split("?")[0];
-
   return {
-    url,
-    pathname,
+    url: info.url,
+    pathname: info.pathname,
   };
 }
 
@@ -78,13 +76,13 @@ function uploadWithProgress(url, file, onProgress) {
     };
 
     xhr.onload = () => {
-      resolve({
-        ok: xhr.status >= 200 && xhr.status < 300,
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve();
 
-        status: xhr.status,
+        return;
+      }
 
-        text: async () => xhr.responseText,
-      });
+      reject(new Error(xhr.responseText || "Não foi possível enviar o PDF."));
     };
 
     xhr.onerror = () => {
