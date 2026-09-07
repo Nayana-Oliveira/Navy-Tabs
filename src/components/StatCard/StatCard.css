@@ -1,12 +1,12 @@
 .stat-card {
-  min-height: 78px;
-  padding: 14px 15px;
+  min-height: 96px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 4px;
+  gap: 6px;
   border: 1px solid #e7ebf0;
-  border-radius: 9px;
+  border-radius: 10px;
   background: #ffffff;
   transition:
     border-color 0.16s ease,
@@ -20,7 +20,7 @@
 
 .stat-card strong {
   color: #172033;
-  font-size: 20px;
+  font-size: 25px;
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.5px;
@@ -28,7 +28,7 @@
 
 .stat-card span {
   color: #8a96a6;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 580;
   letter-spacing: 0.15px;
 }
