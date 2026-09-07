@@ -1,5 +1,7 @@
 import { uploadPresigned } from "@vercel/blob/client";
 
+import { getAuthToken } from "./rifflyApi";
+
 export async function uploadPdf(file, onProgress) {
   if (!file) {
     throw new Error("Selecione um PDF.");
@@ -15,6 +17,12 @@ export async function uploadPdf(file, onProgress) {
     throw new Error("O PDF deve ter no máximo 50 MB.");
   }
 
+  const token = getAuthToken();
+
+  if (!token) {
+    throw new Error("Sua sessão expirou. Entre novamente.");
+  }
+
   const safeName = file.name.trim().replace(/[^a-zA-Z0-9._-]/g, "-");
 
   const pathname = `tablatures/${Date.now()}-${safeName}`;
@@ -23,6 +31,10 @@ export async function uploadPdf(file, onProgress) {
     access: "public",
 
     handleUploadUrl: "/api/upload",
+
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
 
     contentType: "application/pdf",
 

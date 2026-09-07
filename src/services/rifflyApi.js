@@ -25,7 +25,7 @@ function getStoredUser() {
   }
 }
 
-function getToken() {
+export function getAuthToken() {
   return getStoredUser()?.token || "";
 }
 
@@ -59,7 +59,7 @@ async function postRequest(payload, includeToken = true) {
   };
 
   if (includeToken) {
-    finalPayload.token = getToken();
+    finalPayload.token = getAuthToken();
   }
 
   const response = await fetch(API_URL, {
@@ -97,7 +97,7 @@ export async function logoutUser() {
 }
 
 export async function getSongs() {
-  const token = getToken();
+  const token = getAuthToken();
 
   const response = await fetch(
     `${API_URL}?action=listSongs&token=${encodeURIComponent(token)}`,
