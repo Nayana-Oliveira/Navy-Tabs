@@ -29,6 +29,8 @@ export default async function handler(request, response) {
 
       operation: "get",
 
+      access: "public",
+
       validUntil,
     });
 

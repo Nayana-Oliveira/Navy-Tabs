@@ -27,6 +27,8 @@ export default async function handler(request, response) {
     const validUntil = Date.now() + 15 * 60 * 1000;
 
     const token = await issueSignedToken({
+      pathname,
+
       operations: ["put"],
 
       allowedContentTypes: ["application/pdf"],
@@ -40,6 +42,8 @@ export default async function handler(request, response) {
       pathname,
 
       operation: "put",
+
+      access: "public",
 
       validUntil,
     });
