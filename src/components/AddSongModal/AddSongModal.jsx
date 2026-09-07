@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { FileText, Plus, Upload, X } from "lucide-react";
+import { uploadPdf } from "../../services/blobApi";
 import "./AddSongModal.css";
 
 const initialForm = {
@@ -16,6 +17,8 @@ const initialForm = {
 
 export default function AddSongModal({ isOpen, onClose, onCreate }) {
   const [form, setForm] = useState(initialForm);
+  const [selectedPdf, setSelectedPdf] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [saving, setSaving] = useState(false);
 
   if (!isOpen) {
@@ -35,6 +38,9 @@ export default function AddSongModal({ isOpen, onClose, onCreate }) {
     }
 
     setForm(initialForm);
+    setSelectedPdf(null);
+    setUploadProgress(0);
+
     onClose();
   }
 
@@ -42,6 +48,13 @@ export default function AddSongModal({ isOpen, onClose, onCreate }) {
     if (event.target === event.currentTarget) {
       handleClose();
     }
+  }
+
+  function handlePdfChange(event) {
+    const file = event.target.files?.[0] || null;
+
+    setSelectedPdf(file);
+    setUploadProgress(0);
   }
 
   async function handleSubmit(event) {
@@ -54,17 +67,34 @@ export default function AddSongModal({ isOpen, onClose, onCreate }) {
     try {
       setSaving(true);
 
+      let pdfUrl = form.pdfUrl;
+
+      if (selectedPdf) {
+        const blob = await uploadPdf(selectedPdf, setUploadProgress);
+
+        pdfUrl = blob.url;
+      }
+
       await onCreate({
         ...form,
+
         title: form.title.trim(),
+
         artist: form.artist.trim(),
+
         genre: form.genre.trim(),
+
         bpmOriginal: form.bpmOriginal ? Number(form.bpmOriginal) : "",
-        pdfUrl: form.pdfUrl.trim(),
+
+        pdfUrl,
+
         notes: form.notes.trim(),
       });
 
       setForm(initialForm);
+      setSelectedPdf(null);
+      setUploadProgress(0);
+
       onClose();
     } finally {
       setSaving(false);
@@ -105,6 +135,7 @@ export default function AddSongModal({ isOpen, onClose, onCreate }) {
               onChange={(event) => updateField("title", event.target.value)}
               placeholder="Ex: Master of Puppets"
               autoFocus
+              disabled={saving}
             />
           </div>
 
@@ -117,6 +148,7 @@ export default function AddSongModal({ isOpen, onClose, onCreate }) {
               value={form.artist}
               onChange={(event) => updateField("artist", event.target.value)}
               placeholder="Ex: Metallica"
+              disabled={saving}
             />
           </div>
 
@@ -129,6 +161,7 @@ export default function AddSongModal({ isOpen, onClose, onCreate }) {
               value={form.genre}
               onChange={(event) => updateField("genre", event.target.value)}
               placeholder="Ex: Metal"
+              disabled={saving}
             />
           </div>
 
@@ -139,6 +172,7 @@ export default function AddSongModal({ isOpen, onClose, onCreate }) {
               id="add-tuning"
               value={form.tuning}
               onChange={(event) => updateField("tuning", event.target.value)}
+              disabled={saving}
             >
               <option value="E Standard">E Standard</option>
 
@@ -163,6 +197,7 @@ export default function AddSongModal({ isOpen, onClose, onCreate }) {
               onChange={(event) =>
                 updateField("difficulty", event.target.value)
               }
+              disabled={saving}
             >
               <option value="">Não informada</option>
 
@@ -183,6 +218,7 @@ export default function AddSongModal({ isOpen, onClose, onCreate }) {
               id="add-status"
               value={form.status}
               onChange={(event) => updateField("status", event.target.value)}
+              disabled={saving}
             >
               <option value="todo">Quero aprender</option>
 
@@ -204,20 +240,56 @@ export default function AddSongModal({ isOpen, onClose, onCreate }) {
                 updateField("bpmOriginal", event.target.value)
               }
               placeholder="Ex: 120"
+              disabled={saving}
             />
           </div>
 
           <div className="add-song-field">
-            <label htmlFor="add-pdf">Link do PDF</label>
+            <label>PDF</label>
 
-            <input
-              id="add-pdf"
-              type="url"
-              value={form.pdfUrl}
-              onChange={(event) => updateField("pdfUrl", event.target.value)}
-              placeholder="https://..."
-            />
+            <label className="add-song-upload">
+              <input
+                type="file"
+                accept="application/pdf,.pdf"
+                disabled={saving}
+                onChange={handlePdfChange}
+              />
+
+              <Upload size={12} />
+
+              <span>{selectedPdf ? "Trocar PDF" : "Selecionar PDF"}</span>
+            </label>
           </div>
+
+          {selectedPdf && (
+            <div className="add-song-pdf-info full">
+              <div className="add-song-pdf-name">
+                <FileText size={13} />
+
+                <span>{selectedPdf.name}</span>
+
+                <strong>
+                  {(selectedPdf.size / 1024 / 1024).toFixed(1)}
+                  {" MB"}
+                </strong>
+              </div>
+
+              {saving && uploadProgress > 0 && (
+                <div className="add-song-progress">
+                  <div className="add-song-progress-track">
+                    <div
+                      className="add-song-progress-bar"
+                      style={{
+                        width: `${uploadProgress}%`,
+                      }}
+                    />
+                  </div>
+
+                  <span>{uploadProgress}%</span>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="add-song-field full">
             <label htmlFor="add-notes">Notas</label>
@@ -228,6 +300,7 @@ export default function AddSongModal({ isOpen, onClose, onCreate }) {
               value={form.notes}
               onChange={(event) => updateField("notes", event.target.value)}
               placeholder="Observações sobre a tablatura..."
+              disabled={saving}
             />
           </div>
         </div>
@@ -249,7 +322,11 @@ export default function AddSongModal({ isOpen, onClose, onCreate }) {
           >
             <Plus size={13} />
 
-            {saving ? "Adicionando..." : "Adicionar"}
+            {saving
+              ? selectedPdf && uploadProgress < 100
+                ? `Enviando ${uploadProgress}%`
+                : "Adicionando..."
+              : "Adicionar"}
           </button>
         </div>
       </form>

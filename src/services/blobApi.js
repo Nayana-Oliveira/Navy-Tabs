@@ -2,29 +2,31 @@ import { upload } from "@vercel/blob/client";
 
 export async function uploadPdf(file, onProgress) {
   if (!file) {
-    throw new Error("Selecione um arquivo PDF.");
+    throw new Error("Selecione um PDF.");
   }
 
   if (file.type !== "application/pdf") {
-    throw new Error("O arquivo precisa ser um PDF.");
+    throw new Error("Selecione um arquivo PDF.");
   }
 
-  const maxSize = 20 * 1024 * 1024;
+  const maxSize = 50 * 1024 * 1024;
 
   if (file.size > maxSize) {
-    throw new Error("O PDF deve ter no máximo 20 MB.");
+    throw new Error("O PDF deve ter no máximo 50 MB.");
   }
 
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+  const safeName = file.name.trim().replace(/[^a-zA-Z0-9._-]/g, "-");
 
-  const blob = await upload(`tablaturas/${safeName}`, file, {
+  const blob = await upload(`tablatures/${safeName}`, file, {
     access: "public",
 
     handleUploadUrl: "/api/upload",
 
-    onUploadProgress(event) {
+    multipart: true,
+
+    onUploadProgress(progress) {
       if (onProgress) {
-        onProgress(event.percentage);
+        onProgress(Math.round(progress.percentage));
       }
     },
   });

@@ -18,7 +18,7 @@ export default async function handler(request, response) {
         return {
           allowedContentTypes: ["application/pdf"],
 
-          maximumSizeInBytes: 20 * 1024 * 1024,
+          maximumSizeInBytes: 50 * 1024 * 1024,
 
           addRandomSuffix: true,
         };
@@ -31,8 +31,6 @@ export default async function handler(request, response) {
 
     return response.status(200).json(jsonResponse);
   } catch (error) {
-    console.error(error);
-
     return response.status(400).json({
       error: error.message || "Erro no upload.",
     });
