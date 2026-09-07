@@ -8,28 +8,30 @@ export default async function handler(request, response) {
   }
 
   try {
-    console.log({
-      hasBlobStoreId: Boolean(process.env.BLOB_STORE_ID),
+    const oidcToken = request.headers["x-vercel-oidc-token"];
 
-      hasOidcToken: Boolean(process.env.VERCEL_OIDC_TOKEN),
-
-      vercel: Boolean(process.env.VERCEL),
-    });
+    if (!oidcToken) {
+      throw new Error("OIDC token não encontrado.");
+    }
 
     const result = await handleUpload({
       request,
       body: request.body,
 
-      onBeforeGenerateToken: async () => ({
-        allowedContentTypes: ["application/pdf"],
+      token: oidcToken,
 
-        maximumSizeInBytes: 50 * 1024 * 1024,
+      onBeforeGenerateToken: async () => {
+        return {
+          allowedContentTypes: ["application/pdf"],
 
-        addRandomSuffix: true,
-      }),
+          maximumSizeInBytes: 50 * 1024 * 1024,
+
+          addRandomSuffix: true,
+        };
+      },
 
       onUploadCompleted: async ({ blob }) => {
-        console.log("Upload concluído:", blob.url);
+        console.log("PDF enviado:", blob.url);
       },
     });
 
@@ -38,7 +40,7 @@ export default async function handler(request, response) {
     console.error("UPLOAD ERROR:", error);
 
     return response.status(400).json({
-      error: error.message,
+      error: error.message || "Erro no upload.",
     });
   }
 }
