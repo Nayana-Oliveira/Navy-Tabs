@@ -1,4 +1,6 @@
-import { issueSignedToken, presignUrl } from "@vercel/blob";
+import { issueSignedToken } from "@vercel/blob";
+
+import { handleUploadPresigned } from "@vercel/blob/client";
 
 export default async function handler(request, response) {
   if (request.method !== "POST") {
@@ -8,55 +10,45 @@ export default async function handler(request, response) {
   }
 
   try {
-    const { pathname, contentType, size } = request.body || {};
+    const result = await handleUploadPresigned({
+      request,
+      body: request.body,
 
-    if (!pathname) {
-      throw new Error("Nome do arquivo não informado.");
-    }
+      getSignedToken: async (pathname) => {
+        const token = await issueSignedToken({
+          pathname,
 
-    if (contentType !== "application/pdf") {
-      throw new Error("Apenas arquivos PDF são permitidos.");
-    }
+          operations: ["put"],
 
-    const maximumSizeInBytes = 50 * 1024 * 1024;
+          allowedContentTypes: ["application/pdf"],
 
-    if (!size || size > maximumSizeInBytes) {
-      throw new Error("O PDF deve ter no máximo 50 MB.");
-    }
+          maximumSizeInBytes: 50 * 1024 * 1024,
 
-    const validUntil = Date.now() + 15 * 60 * 1000;
+          validUntil: Date.now() + 15 * 60 * 1000,
+        });
 
-    const token = await issueSignedToken({
-      pathname,
+        return {
+          token,
 
-      operations: ["put"],
+          urlOptions: {
+            allowedContentTypes: ["application/pdf"],
 
-      allowedContentTypes: ["application/pdf"],
+            maximumSizeInBytes: 50 * 1024 * 1024,
 
-      maximumSizeInBytes,
+            addRandomSuffix: false,
 
-      validUntil,
+            validUntil: Date.now() + 15 * 60 * 1000,
+          },
+        };
+      },
     });
 
-    const { presignedUrl } = await presignUrl(token, {
-      pathname,
-
-      operation: "put",
-
-      access: "public",
-
-      validUntil,
-    });
-
-    return response.status(200).json({
-      presignedUrl,
-      pathname,
-    });
+    return response.status(200).json(result);
   } catch (error) {
-    console.error("SIGNED UPLOAD ERROR:", error);
+    console.error("UPLOAD ERROR:", error);
 
     return response.status(400).json({
-      error: error.message || "Erro ao preparar upload.",
+      error: error.message || "Erro no upload.",
     });
   }
 }

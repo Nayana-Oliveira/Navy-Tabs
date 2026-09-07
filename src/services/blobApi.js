@@ -1,3 +1,5 @@
+import { uploadPresigned } from "@vercel/blob/client";
+
 export async function uploadPdf(file, onProgress) {
   if (!file) {
     throw new Error("Selecione um PDF.");
@@ -15,70 +17,25 @@ export async function uploadPdf(file, onProgress) {
 
   const safeName = file.name.trim().replace(/[^a-zA-Z0-9._-]/g, "-");
 
-  const uniqueName = `${Date.now()}-${safeName}`;
+  const pathname = `tablatures/${Date.now()}-${safeName}`;
 
-  const pathname = `tablatures/${uniqueName}`;
+  const blob = await uploadPresigned(pathname, file, {
+    access: "public",
 
-  const tokenResponse = await fetch("/api/upload", {
-    method: "POST",
+    handleUploadUrl: "/api/upload",
 
-    headers: {
-      "Content-Type": "application/json",
+    contentType: "application/pdf",
+
+    multipart: true,
+
+    onUploadProgress(progress) {
+      onProgress?.(Math.round(progress.percentage));
     },
-
-    body: JSON.stringify({
-      pathname,
-      contentType: file.type,
-      size: file.size,
-    }),
   });
-
-  const tokenResult = await tokenResponse.json();
-
-  if (!tokenResponse.ok) {
-    throw new Error(tokenResult.error || "Não foi possível preparar o upload.");
-  }
-
-  await uploadWithProgress(tokenResult.presignedUrl, file, onProgress);
 
   return {
-    url: `/api/pdf?pathname=${encodeURIComponent(pathname)}`,
+    url: blob.url,
 
-    pathname,
+    pathname: blob.pathname,
   };
-}
-
-function uploadWithProgress(url, file, onProgress) {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-
-    xhr.open("PUT", url);
-
-    xhr.setRequestHeader("Content-Type", "application/pdf");
-
-    xhr.upload.onprogress = (event) => {
-      if (!event.lengthComputable) {
-        return;
-      }
-
-      const percentage = Math.round((event.loaded / event.total) * 100);
-
-      onProgress?.(percentage);
-    };
-
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        resolve();
-        return;
-      }
-
-      reject(new Error(xhr.responseText || "Não foi possível enviar o PDF."));
-    };
-
-    xhr.onerror = () => {
-      reject(new Error("Erro de rede durante o upload."));
-    };
-
-    xhr.send(file);
-  });
 }
