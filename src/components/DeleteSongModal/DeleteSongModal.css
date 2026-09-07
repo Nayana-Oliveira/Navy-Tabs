@@ -1,0 +1,141 @@
+.delete-song-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.24);
+  backdrop-filter: blur(2px);
+}
+
+.delete-song-modal {
+  width: 100%;
+  max-width: 360px;
+  padding: 18px;
+  border: 1px solid #e4e9ef;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.13);
+}
+
+.delete-song-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.delete-song-icon {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  background: #fff1f2;
+  color: #dc2626;
+}
+
+.delete-song-close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.delete-song-close:hover {
+  background: #f4f6f8;
+  color: #475569;
+}
+
+.delete-song-content h2 {
+  margin: 0;
+  color: #172033;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.25px;
+}
+
+.delete-song-content p {
+  margin: 7px 0 0;
+  color: #7d8998;
+  font-size: 9px;
+  line-height: 1.6;
+}
+
+.delete-song-content strong {
+  color: #475569;
+  font-weight: 650;
+}
+
+.delete-song-footer {
+  margin-top: 18px;
+  padding-top: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  border-top: 1px solid #edf0f3;
+}
+
+.delete-song-cancel,
+.delete-song-confirm {
+  height: 31px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 8px;
+  font-weight: 620;
+  cursor: pointer;
+}
+
+.delete-song-cancel {
+  border: 1px solid #e1e6ec;
+  background: #ffffff;
+  color: #64748b;
+}
+
+.delete-song-cancel:hover {
+  background: #f8fafc;
+  color: #334155;
+}
+
+.delete-song-confirm {
+  border: 0;
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.delete-song-confirm:hover {
+  background: #b91c1c;
+}
+
+.delete-song-cancel:disabled,
+.delete-song-confirm:disabled,
+.delete-song-close:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  .delete-song-overlay {
+    padding: 14px;
+  }
+
+  .delete-song-modal {
+    padding: 16px;
+  }
+}

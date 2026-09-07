@@ -1,0 +1,242 @@
+.song-details-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.24);
+  backdrop-filter: blur(2px);
+}
+
+.song-details-modal {
+  width: 100%;
+  max-width: 510px;
+  padding: 20px;
+  border: 1px solid #e4e9ef;
+  border-radius: 11px;
+  background: #ffffff;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.13);
+}
+
+.song-details-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #edf0f3;
+}
+
+.song-details-title {
+  min-width: 0;
+}
+
+.song-details-title h2 {
+  margin: 8px 0 0;
+  color: #172033;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.4px;
+}
+
+.song-details-title p {
+  margin: 4px 0 0;
+  color: #8a96a6;
+  font-size: 9px;
+}
+
+.song-details-status {
+  min-height: 21px;
+  padding: 0 7px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 5px;
+  font-size: 7px;
+  font-weight: 650;
+}
+
+.song-details-status.todo {
+  background: #f3f5f7;
+  color: #718096;
+}
+
+.song-details-status.learning {
+  background: #eef5ff;
+  color: #2563eb;
+}
+
+.song-details-status.learned {
+  background: #edf9f3;
+  color: #16815c;
+}
+
+.song-details-close {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.song-details-close:hover {
+  background: #f4f6f8;
+  color: #475569;
+}
+
+.song-details-info {
+  padding: 16px 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  border-bottom: 1px solid #edf0f3;
+}
+
+.song-detail-item {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.song-detail-item > span {
+  color: #9aa5b3;
+  font-size: 7px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.song-detail-item strong {
+  overflow: hidden;
+  color: #475569;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.song-detail-bpm {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.song-details-section {
+  padding: 16px 0;
+}
+
+.song-details-label {
+  display: block;
+  margin-bottom: 7px;
+  color: #9aa5b3;
+  font-size: 7px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.song-details-notes {
+  min-height: 56px;
+  padding: 10px 11px;
+  border: 1px solid #e8ecf1;
+  border-radius: 7px;
+  background: #fafbfc;
+}
+
+.song-details-notes p {
+  margin: 0;
+  color: #5f6c7b;
+  font-size: 9px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.song-details-notes .empty-notes {
+  color: #a6afbb;
+}
+
+.song-details-footer {
+  padding-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-top: 1px solid #edf0f3;
+}
+
+.song-details-pdf {
+  height: 31px;
+  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 1px solid #dce5f3;
+  border-radius: 6px;
+  background: #f8fbff;
+  color: #2563eb;
+  font-size: 8px;
+  font-weight: 620;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.song-details-pdf:hover {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.song-details-no-pdf {
+  color: #a7b0bd;
+  font-size: 8px;
+}
+
+.song-details-edit {
+  height: 31px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 0;
+  border-radius: 6px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 8px;
+  font-weight: 620;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.song-details-edit:hover {
+  background: #1d4ed8;
+}
+
+@media (max-width: 600px) {
+  .song-details-overlay {
+    padding: 14px;
+  }
+
+  .song-details-modal {
+    padding: 16px;
+  }
+
+  .song-details-info {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
