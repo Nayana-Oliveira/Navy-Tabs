@@ -8,17 +8,10 @@ export default async function handler(request, response) {
   }
 
   try {
-    const oidcToken = request.headers["x-vercel-oidc-token"];
-
-    if (!oidcToken) {
-      throw new Error("OIDC token não encontrado.");
-    }
-
     const result = await handleUpload({
       request,
-      body: request.body,
 
-      token: oidcToken,
+      body: request.body,
 
       onBeforeGenerateToken: async () => {
         return {
