@@ -1,4 +1,4 @@
-import { handleUpload } from "@vercel/blob/client";
+import { issueSignedToken, presignUrl } from "@vercel/blob";
 
 export default async function handler(request, response) {
   if (request.method !== "POST") {
@@ -8,32 +8,52 @@ export default async function handler(request, response) {
   }
 
   try {
-    const result = await handleUpload({
-      request,
+    const { pathname, contentType, size } = request.body || {};
 
-      body: request.body,
+    if (!pathname) {
+      throw new Error("Nome do arquivo não informado.");
+    }
 
-      onBeforeGenerateToken: async () => {
-        return {
-          allowedContentTypes: ["application/pdf"],
+    if (contentType !== "application/pdf") {
+      throw new Error("Apenas arquivos PDF são permitidos.");
+    }
 
-          maximumSizeInBytes: 50 * 1024 * 1024,
+    const maximumSizeInBytes = 50 * 1024 * 1024;
 
-          addRandomSuffix: true,
-        };
-      },
+    if (!size || size > maximumSizeInBytes) {
+      throw new Error("O PDF deve ter no máximo 50 MB.");
+    }
 
-      onUploadCompleted: async ({ blob }) => {
-        console.log("PDF enviado:", blob.url);
-      },
+    const validUntil = Date.now() + 15 * 60 * 1000;
+
+    const token = await issueSignedToken({
+      pathname,
+
+      operations: ["put"],
+
+      allowedContentTypes: ["application/pdf"],
+
+      maximumSizeInBytes,
+
+      validUntil,
     });
 
-    return response.status(200).json(result);
+    const { presignedUrl } = await presignUrl(token, {
+      pathname,
+
+      operation: "put",
+
+      validUntil,
+    });
+
+    return response.status(200).json({
+      presignedUrl,
+    });
   } catch (error) {
-    console.error("UPLOAD ERROR:", error);
+    console.error("SIGNED URL ERROR:", error);
 
     return response.status(400).json({
-      error: error.message || "Erro no upload.",
+      error: error.message || "Erro ao gerar URL de upload.",
     });
   }
 }
