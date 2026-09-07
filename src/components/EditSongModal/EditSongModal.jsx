@@ -1,19 +1,27 @@
 import { useEffect, useState } from "react";
-import { Save, X } from "lucide-react";
+import { FileText, Save, Upload, X } from "lucide-react";
+import toast from "react-hot-toast";
+import { uploadPdf } from "../../services/blobApi";
 import "./EditSongModal.css";
 
+const initialForm = {
+  title: "",
+  artist: "",
+  genre: "",
+  tuning: "E Standard",
+  difficulty: "",
+  status: "todo",
+  bpmOriginal: "",
+  pdfUrl: "",
+  notes: "",
+};
+
 export default function EditSongModal({ isOpen, song, onClose, onSave }) {
-  const [form, setForm] = useState({
-    title: "",
-    artist: "",
-    genre: "",
-    tuning: "E Standard",
-    difficulty: "",
-    status: "todo",
-    bpmOriginal: "",
-    pdfUrl: "",
-    notes: "",
-  });
+  const [form, setForm] = useState(initialForm);
+
+  const [selectedPdf, setSelectedPdf] = useState(null);
+
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const [saving, setSaving] = useState(false);
 
@@ -24,16 +32,27 @@ export default function EditSongModal({ isOpen, song, onClose, onSave }) {
 
     setForm({
       title: song.title || "",
+
       artist: song.artist || "",
+
       genre: song.genre || "",
+
       tuning: song.tuning || "E Standard",
+
       difficulty: song.difficulty || "",
+
       status: song.status || "todo",
+
       bpmOriginal: song.bpmOriginal || "",
+
       pdfUrl: song.pdfUrl || "",
+
       notes: song.notes || "",
     });
-  }, [song]);
+
+    setSelectedPdf(null);
+    setUploadProgress(0);
+  }, [song, isOpen]);
 
   if (!isOpen || !song) {
     return null;
@@ -46,10 +65,28 @@ export default function EditSongModal({ isOpen, song, onClose, onSave }) {
     }));
   }
 
-  function handleOverlayClick(event) {
-    if (event.target === event.currentTarget && !saving) {
-      onClose();
+  function handleClose() {
+    if (saving) {
+      return;
     }
+
+    setSelectedPdf(null);
+    setUploadProgress(0);
+
+    onClose();
+  }
+
+  function handleOverlayClick(event) {
+    if (event.target === event.currentTarget) {
+      handleClose();
+    }
+  }
+
+  function handlePdfChange(event) {
+    const file = event.target.files?.[0] || null;
+
+    setSelectedPdf(file);
+    setUploadProgress(0);
   }
 
   async function handleSubmit(event) {
@@ -62,17 +99,38 @@ export default function EditSongModal({ isOpen, song, onClose, onSave }) {
     try {
       setSaving(true);
 
+      let pdfUrl = form.pdfUrl;
+
+      if (selectedPdf) {
+        const blob = await uploadPdf(selectedPdf, setUploadProgress);
+
+        pdfUrl = blob.url;
+      }
+
       await onSave(song.id, {
         ...form,
+
         title: form.title.trim(),
+
         artist: form.artist.trim(),
+
         genre: form.genre.trim(),
+
         bpmOriginal: form.bpmOriginal ? Number(form.bpmOriginal) : "",
-        pdfUrl: form.pdfUrl.trim(),
+
+        pdfUrl,
+
         notes: form.notes.trim(),
       });
 
+      setSelectedPdf(null);
+      setUploadProgress(0);
+
       onClose();
+    } catch (error) {
+      console.error("Erro ao editar:", error);
+
+      toast.error(error.message || "Não foi possível salvar a tablatura.");
     } finally {
       setSaving(false);
     }
@@ -85,15 +143,15 @@ export default function EditSongModal({ isOpen, song, onClose, onSave }) {
           <div>
             <span className="edit-song-eyebrow">EDITAR TABLATURA</span>
 
-            <h2>{song.title}</h2>
+            <h2>Editar música</h2>
 
-            <p>Atualize os dados da música.</p>
+            <p>Atualize os dados da tablatura.</p>
           </div>
 
           <button
             type="button"
             className="edit-song-close"
-            onClick={onClose}
+            onClick={handleClose}
             disabled={saving}
             aria-label="Fechar"
           >
@@ -110,6 +168,9 @@ export default function EditSongModal({ isOpen, song, onClose, onSave }) {
               type="text"
               value={form.title}
               onChange={(event) => updateField("title", event.target.value)}
+              placeholder="Ex: Master of Puppets"
+              autoFocus
+              disabled={saving}
             />
           </div>
 
@@ -121,6 +182,8 @@ export default function EditSongModal({ isOpen, song, onClose, onSave }) {
               type="text"
               value={form.artist}
               onChange={(event) => updateField("artist", event.target.value)}
+              placeholder="Ex: Metallica"
+              disabled={saving}
             />
           </div>
 
@@ -132,6 +195,8 @@ export default function EditSongModal({ isOpen, song, onClose, onSave }) {
               type="text"
               value={form.genre}
               onChange={(event) => updateField("genre", event.target.value)}
+              placeholder="Ex: Metal"
+              disabled={saving}
             />
           </div>
 
@@ -142,6 +207,7 @@ export default function EditSongModal({ isOpen, song, onClose, onSave }) {
               id="edit-tuning"
               value={form.tuning}
               onChange={(event) => updateField("tuning", event.target.value)}
+              disabled={saving}
             >
               <option value="E Standard">E Standard</option>
 
@@ -166,6 +232,7 @@ export default function EditSongModal({ isOpen, song, onClose, onSave }) {
               onChange={(event) =>
                 updateField("difficulty", event.target.value)
               }
+              disabled={saving}
             >
               <option value="">Não informada</option>
 
@@ -186,6 +253,7 @@ export default function EditSongModal({ isOpen, song, onClose, onSave }) {
               id="edit-status"
               value={form.status}
               onChange={(event) => updateField("status", event.target.value)}
+              disabled={saving}
             >
               <option value="todo">Quero aprender</option>
 
@@ -206,19 +274,77 @@ export default function EditSongModal({ isOpen, song, onClose, onSave }) {
               onChange={(event) =>
                 updateField("bpmOriginal", event.target.value)
               }
+              placeholder="Ex: 120"
+              disabled={saving}
             />
           </div>
 
           <div className="edit-song-field">
-            <label htmlFor="edit-pdf">Link do PDF</label>
+            <label>PDF</label>
 
-            <input
-              id="edit-pdf"
-              type="url"
-              value={form.pdfUrl}
-              onChange={(event) => updateField("pdfUrl", event.target.value)}
-            />
+            <label className="edit-song-upload">
+              <input
+                type="file"
+                accept="application/pdf,.pdf"
+                disabled={saving}
+                onChange={handlePdfChange}
+              />
+
+              <Upload size={12} />
+
+              <span>{form.pdfUrl ? "Trocar PDF" : "Selecionar PDF"}</span>
+            </label>
           </div>
+
+          {form.pdfUrl && !selectedPdf && (
+            <div className="edit-song-pdf-info full">
+              <div className="edit-song-pdf-name">
+                <FileText size={13} />
+
+                <span>PDF atual</span>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    window.open(form.pdfUrl, "_blank", "noopener,noreferrer")
+                  }
+                  disabled={saving}
+                >
+                  Abrir
+                </button>
+              </div>
+            </div>
+          )}
+
+          {selectedPdf && (
+            <div className="edit-song-pdf-info full">
+              <div className="edit-song-pdf-name">
+                <FileText size={13} />
+
+                <span>{selectedPdf.name}</span>
+
+                <strong>
+                  {(selectedPdf.size / 1024 / 1024).toFixed(1)}
+                  {" MB"}
+                </strong>
+              </div>
+
+              {saving && uploadProgress > 0 && (
+                <div className="edit-song-progress">
+                  <div className="edit-song-progress-track">
+                    <div
+                      className="edit-song-progress-bar"
+                      style={{
+                        width: `${uploadProgress}%`,
+                      }}
+                    />
+                  </div>
+
+                  <span>{uploadProgress}%</span>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="edit-song-field full">
             <label htmlFor="edit-notes">Notas</label>
@@ -228,6 +354,8 @@ export default function EditSongModal({ isOpen, song, onClose, onSave }) {
               rows="4"
               value={form.notes}
               onChange={(event) => updateField("notes", event.target.value)}
+              placeholder="Observações sobre a tablatura..."
+              disabled={saving}
             />
           </div>
         </div>
@@ -236,7 +364,7 @@ export default function EditSongModal({ isOpen, song, onClose, onSave }) {
           <button
             type="button"
             className="edit-song-cancel"
-            onClick={onClose}
+            onClick={handleClose}
             disabled={saving}
           >
             Cancelar
@@ -247,9 +375,13 @@ export default function EditSongModal({ isOpen, song, onClose, onSave }) {
             className="edit-song-submit"
             disabled={saving || !form.title.trim()}
           >
-            <Save size={13} />
+            <Save size={12} />
 
-            {saving ? "Salvando..." : "Salvar"}
+            {saving
+              ? selectedPdf && uploadProgress < 100
+                ? `Enviando ${uploadProgress}%`
+                : "Salvando..."
+              : "Salvar"}
           </button>
         </div>
       </form>
