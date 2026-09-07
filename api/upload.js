@@ -8,10 +8,8 @@ export default async function handler(request, response) {
   }
 
   try {
-    const body = request.body;
-
     const jsonResponse = await handleUpload({
-      body,
+      body: request.body,
       request,
 
       onBeforeGenerateToken: async (pathname) => {
@@ -31,6 +29,8 @@ export default async function handler(request, response) {
 
     return response.status(200).json(jsonResponse);
   } catch (error) {
+    console.error("Blob upload error:", error);
+
     return response.status(400).json({
       error: error.message || "Erro no upload.",
     });
