@@ -8,28 +8,34 @@ export default async function handler(request, response) {
   }
 
   try {
+    console.log({
+      hasBlobStoreId: Boolean(process.env.BLOB_STORE_ID),
+
+      hasOidcToken: Boolean(process.env.VERCEL_OIDC_TOKEN),
+
+      vercel: Boolean(process.env.VERCEL),
+    });
+
     const result = await handleUpload({
       request,
       body: request.body,
 
-      onBeforeGenerateToken: async (pathname) => {
-        return {
-          allowedContentTypes: ["application/pdf"],
+      onBeforeGenerateToken: async () => ({
+        allowedContentTypes: ["application/pdf"],
 
-          maximumSizeInBytes: 50 * 1024 * 1024,
+        maximumSizeInBytes: 50 * 1024 * 1024,
 
-          addRandomSuffix: true,
-        };
-      },
+        addRandomSuffix: true,
+      }),
 
       onUploadCompleted: async ({ blob }) => {
-        console.log(blob.url);
+        console.log("Upload concluído:", blob.url);
       },
     });
 
     return response.status(200).json(result);
   } catch (error) {
-    console.error(error);
+    console.error("UPLOAD ERROR:", error);
 
     return response.status(400).json({
       error: error.message,
