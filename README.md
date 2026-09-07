@@ -1,6 +1,6 @@
-# Riffly
+# Navy
 
-Riffly é uma biblioteca pessoal de tablaturas desenvolvida para organizar músicas, informações de execução e arquivos PDF em um único lugar.
+Navy é uma biblioteca pessoal de tablaturas desenvolvida para organizar músicas, informações de execução e arquivos PDF em um único lugar.
 
 O projeto possui uma interface simples e compacta para cadastrar, buscar, filtrar, editar e organizar tablaturas.
 
@@ -69,7 +69,7 @@ src/
 │   ├── Library/
 │   └── Login/
 ├── services/
-│   └── rifflyApi.js
+│   └── NavyApi.js
 ├── App.jsx
 ├── App.css
 └── main.jsx
@@ -93,7 +93,7 @@ Cada tablatura pode armazenar:
 
 ## Status
 
-O Riffly utiliza três estados para organizar a biblioteca:
+O Navy utiliza três estados para organizar a biblioteca:
 
 | Status | Descrição |
 | --- | --- |
@@ -103,7 +103,7 @@ O Riffly utiliza três estados para organizar a biblioteca:
 
 ## Autenticação
 
-O acesso ao Riffly é privado.
+O acesso ao Navy é privado.
 
 Os usuários autorizados são definidos em uma aba `Users` no Google Sheets.
 
@@ -155,7 +155,7 @@ git clone <URL_DO_REPOSITORIO>
 Entre na pasta:
 
 ```bash
-cd riffly
+cd Navy
 ```
 
 Instale as dependências:
@@ -191,7 +191,7 @@ npm run preview
 A comunicação com o Google Apps Script está centralizada em:
 
 ```text
-src/services/rifflyApi.js
+src/services/NavyApi.js
 ```
 
 As principais operações disponíveis são:
@@ -209,7 +209,7 @@ As operações da biblioteca exigem um token de sessão válido.
 
 ## Segurança
 
-O Riffly foi desenvolvido como uma aplicação pessoal e privada.
+O Navy foi desenvolvido como uma aplicação pessoal e privada.
 
 O sistema atual utiliza:
 
@@ -229,7 +229,7 @@ O upload e armazenamento dos PDFs será integrado separadamente utilizando Verce
 
 ## Objetivo
 
-O Riffly não é uma plataforma de prática musical ou acompanhamento de progresso.
+O Navy não é uma plataforma de prática musical ou acompanhamento de progresso.
 
 O objetivo é simples:
 

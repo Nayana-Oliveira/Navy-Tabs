@@ -27,7 +27,7 @@ export default function Login({ onLogin }) {
 
       const user = await loginUser(normalizedEmail);
 
-      toast.success("Bem-vindo ao Riffly!", {
+      toast.success("Bem-vindo ao Navy!", {
         id: toastId,
       });
 

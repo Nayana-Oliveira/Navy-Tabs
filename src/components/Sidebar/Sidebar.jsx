@@ -22,7 +22,7 @@ export default function Sidebar({ isOpen, user, onClose, onLogout }) {
         <div className="sidebar-top">
           <div className="sidebar-brand">
             <div className="sidebar-brand-text">
-              <strong>Riffly</strong>
+              <strong>Navy</strong>
 
               <span>Tablature Library</span>
             </div>
