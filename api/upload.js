@@ -8,9 +8,9 @@ export default async function handler(request, response) {
   }
 
   try {
-    const jsonResponse = await handleUpload({
-      body: request.body,
+    const result = await handleUpload({
       request,
+      body: request.body,
 
       onBeforeGenerateToken: async (pathname) => {
         return {
@@ -23,16 +23,16 @@ export default async function handler(request, response) {
       },
 
       onUploadCompleted: async ({ blob }) => {
-        console.log("PDF enviado:", blob.url);
+        console.log(blob.url);
       },
     });
 
-    return response.status(200).json(jsonResponse);
+    return response.status(200).json(result);
   } catch (error) {
-    console.error("Blob upload error:", error);
+    console.error(error);
 
     return response.status(400).json({
-      error: error.message || "Erro no upload.",
+      error: error.message,
     });
   }
 }

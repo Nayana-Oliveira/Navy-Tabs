@@ -17,7 +17,7 @@ export async function uploadPdf(file, onProgress) {
 
   const safeName = file.name.trim().replace(/[^a-zA-Z0-9._-]/g, "-");
 
-  const blob = await upload(`tablatures/${safeName}`, file, {
+  return upload(`tablatures/${safeName}`, file, {
     access: "public",
 
     handleUploadUrl: "/api/upload",
@@ -25,11 +25,7 @@ export async function uploadPdf(file, onProgress) {
     multipart: true,
 
     onUploadProgress(progress) {
-      if (onProgress) {
-        onProgress(Math.round(progress.percentage));
-      }
+      onProgress?.(Math.round(progress.percentage));
     },
   });
-
-  return blob;
 }
